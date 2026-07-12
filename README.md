@@ -90,16 +90,18 @@ The full search for 3 pieces finishes in well under a second.
 
 ## Maintainer setup
 
-### Enabling the live web app
+### How the live web app is hosted
 
-The browser app deploys automatically via GitHub Actions. The workflow enables
-GitHub Pages itself (`configure-pages` runs with `enablement: true`), so every
-push to `main` that touches `WebApp/` publishes
-`https://grloper.github.io/Block-Blast-Solver/` with no manual setup.
+GitHub Pages serves the site straight from the `main` branch
+(**Settings → Pages → Source: Deploy from a branch → `main` / `(root)`**), which
+rebuilds automatically on every push. A root `index.html` redirects visitors to
+`WebApp/`, and `.nojekyll` makes every file serve as-is. So the play link is:
 
-If your account/org policy blocks automatic enablement, turn it on once by
-hand: **Settings → Pages → Build and deployment → Source: GitHub Actions**,
-then re-run the workflow.
+`https://grloper.github.io/Block-Blast-Solver/` → redirects to the app.
+
+Prefer an Actions-based deploy instead? Switch the Pages **Source** to
+**GitHub Actions** and run the optional `deploy-web.yml` workflow (Actions tab →
+*Run workflow*).
 
 ### Enabling native release builds
 
