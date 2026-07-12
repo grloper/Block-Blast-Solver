@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1729">
+<meta name="description" content="Block Blast Solver - find the best way to place your next hand of pieces. Runs in any browser, on any device.">
+<title>Block Blast Solver</title>
+<style>
+  :root {
+    --bg: #0b1120;
+    --card: #131c31;
+    --panel: #1a2438;
+    --button: #2b3d61;
+    --accent: #3b82f5;
+    --accent-hi: #5b9bff;
+    --tile: #f2f5fa;
+    --tile-empty: #24304a;
+    --filled: #4ab85e;
+    --p1: #3b82f5; --p2: #f59e0a; --p3: #a854f7;
+    --text: #eef2f8;
+    --muted: rgba(238,242,248,.6);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(1200px 600px at 20% -10%, #1b2a4a 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 24px);
+  }
+  header { text-align: center; margin: 28px 0 18px; }
+  header h1 { font-size: clamp(24px, 6vw, 34px); letter-spacing: .5px; }
+  header p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  .app {
+    width: 100%;
+    max-width: 960px;
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .board-wrap {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    flex: 0 0 auto;
+  }
+  #board {
+    --cell: clamp(30px, 9.5vw, 52px);
+    display: grid;
+    grid-template-columns: repeat(8, var(--cell));
+    grid-template-rows: repeat(8, var(--cell));
+    gap: clamp(3px, 1vw, 6px);
+    touch-action: none;           /* let us paint by dragging instead of scrolling */
+  }
+  .cell {
+    background: var(--tile);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background .06s linear;
+  }
+  .cell.filled { background: var(--filled); }
+  .cell.p0 { background: var(--p1); }
+  .cell.p1 { background: var(--p2); }
+  .cell.p2 { background: var(--p3); }
+
+  .controls {
+    background: var(--panel);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    flex: 1 1 320px;
+    min-width: 300px;
+    max-width: 420px;
+  }
+  .steps { display: flex; gap: 8px; margin-bottom: 18px; }
+  .step { flex: 1; font-size: 11.5px; color: var(--muted); text-align: center; line-height: 1.3; }
+  .step b { display: block; color: var(--accent-hi); font-size: 15px; margin-bottom: 2px; }
+
+  .label { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: var(--muted); margin: 4px 0 10px; }
+
+  #slots { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
+  .slot {
+    width: clamp(64px, 20vw, 84px); height: clamp(64px, 20vw, 84px);
+    background: rgba(255,255,255,.05);
+    border: 1px dashed rgba(255,255,255,.12);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .slot.used { border-style: solid; }
+
+  #palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; margin-bottom: 18px; }
+  .piece {
+    aspect-ratio: 1; background: var(--button); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: filter .1s, transform .1s;
+  }
+  .piece:hover { filter: brightness(1.25); }
+  .piece:active { transform: scale(.94); }
+
+  .mini { display: grid; }
+  .mini i { display: block; border-radius: 2px; }
+
+  .btn {
+    display: block; width: 100%; border: 0; border-radius: 10px; color: #fff; font-weight: 700;
+    font-family: inherit; cursor: pointer; letter-spacing: .5px; transition: filter .1s, transform .05s;
+  }
+  .btn:active { transform: translateY(1px); }
+  #solve { height: 50px; font-size: 16px; background: var(--accent); margin-bottom: 12px; }
+  #solve:hover { filter: brightness(1.1); }
+  .row2 { display: flex; gap: 10px; margin-bottom: 14px; }
+  .row2 .btn { height: 42px; font-size: 12.5px; background: var(--button); }
+  #status {
+    font-size: 14px; text-align: center; color: var(--text);
+    background: rgba(0,0,0,.2); border-radius: 8px; padding: 10px; min-height: 42px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  footer { color: var(--muted); font-size: 12.5px; margin-top: 28px; text-align: center; }
+  footer a { color: var(--accent-hi); text-decoration: none; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Block Blast Solver</h1>
+    <p>Recreate your board, pick your 3 pieces, and get the best placement.</p>
+  </header>
+
+  <div class="app">
+    <div class="board-wrap"><div id="board" aria-label="8 by 8 game board"></div></div>
+
+    <div class="controls">
+      <div class="steps">
+        <div class="step"><b>1</b>Paint your board</div>
+        <div class="step"><b>2</b>Pick 3 pieces</div>
+        <div class="step"><b>3</b>Solve</div>
+      </div>
+
+      <div class="label">YOUR HAND</div>
+      <div id="slots"></div>
+
+      <div class="label">PIECES</div>
+      <div id="palette"></div>
+
+      <button class="btn" id="solve">SOLVE</button>
+      <div class="row2">
+        <button class="btn" id="clear">CLEAR SOLUTION</button>
+        <button class="btn" id="reset">RESET BOARD</button>
+      </div>
+      <div id="status">Paint the blocked cells, then pick up to 3 pieces.</div>
+    </div>
+  </div>
+
+  <footer>
+    Open source &middot; <a href="https://github.com/grloper/Block-Blast-Solver">github.com/grloper/Block-Blast-Solver</a><br>
+    Same solver as the Unity project, running entirely in your browser. Nothing is uploaded.
+  </footer>
+
+<script>
+"use strict";
+// ----------------------------------------------------------------- solver core
+// (identical algorithm to Assets/Scripts/BlockBlastSolver.cs & PieceLibrary.cs)
+const SIZE = 8;
+
+function makePiece(name, rows) {
+  const cells = [];
+  for (let r = 0; r < rows.length; r++)
+    for (let c = 0; c < rows[r].length; c++)
+      if (rows[r][c] === 'X') cells.push({ x: c, y: r });
+  let width = 0, height = 0;
+  for (const c of cells) { width = Math.max(width, c.x + 1); height = Math.max(height, c.y + 1); }
+  return { name, cells, width, height };
+}
+
+const PIECES = [
+  makePiece("1x1", ["X"]),
+  makePiece("1x2", ["XX"]),
+  makePiece("1x3", ["XXX"]),
+  makePiece("1x4", ["XXXX"]),
+  makePiece("1x5", ["XXXXX"]),
+  makePiece("2x1", ["X","X"]),
+  makePiece("3x1", ["X","X","X"]),
+  makePiece("4x1", ["X","X","X","X"]),
+  makePiece("5x1", ["X","X","X","X","X"]),
+  makePiece("2x2", ["XX","XX"]),
+  makePiece("3x3", ["XXX","XXX","XXX"]),
+  makePiece("2x3", ["XXX","XXX"]),
+  makePiece("3x2", ["XX","XX","XX"]),
+  makePiece("Corner NW", ["XX","X."]),
+  makePiece("Corner NE", ["XX",".X"]),
+  makePiece("Corner SW", ["X.","XX"]),
+  makePiece("Corner SE", [".X","XX"]),
+  makePiece("L", ["X..","X..","XXX"]),
+  makePiece("L 90", ["XXX","X..","X.."]),
+  makePiece("L 180", ["XXX","..X","..X"]),
+  makePiece("L 270", ["..X","..X","XXX"]),
+  makePiece("T up", [".X.","XXX"]),
+  makePiece("T down", ["XXX",".X."]),
+  makePiece("T left", [".X","XX",".X"]),
+  makePiece("T right", ["X.","XX","X."]),
+  makePiece("S", [".XX","XX."]),
+  makePiece("Z", ["XX.",".XX"]),
+  makePiece("S vert", ["X.","XX",".X"]),
+  makePiece("Z vert", [".X","XX","X."]),
+];
+
+const fits = (b, p, row, col) => {
+  for (const cell of p.cells) if (b[row + cell.y][col + cell.x]) return false;
+  return true;
+};
+const place = (b, p, row, col, v) => { for (const cell of p.cells) b[row + cell.y][col + cell.x] = v; };
+function clearFullLines(b) {
+  const fr = [], fc = [];
+  for (let r = 0; r < SIZE; r++) if (b[r].every(Boolean)) fr.push(r);
+  for (let c = 0; c < SIZE; c++) { let f = true; for (let r = 0; r < SIZE; r++) if (!b[r][c]) { f = false; break; } if (f) fc.push(c); }
+  for (const r of fr) for (let c = 0; c < SIZE; c++) b[r][c] = false;
+  for (const c of fc) for (let r = 0; r < SIZE; r++) b[r][c] = false;
+  return fr.length + fc.length;
+}
+const copy = b => b.map(r => r.slice());
+
+function solve(board, pieces) {
+  const best = { placements: [], totalLinesCleared: 0, score: -Infinity };
+  const used = new Array(pieces.length).fill(false);
+  function search(b, current, score, lines) {
+    let placedAny = false;
+    for (let i = 0; i < pieces.length; i++) {
+      if (used[i]) continue;
+      let dup = false;
+      for (let j = 0; j < i; j++) if (!used[j] && pieces[j] === pieces[i]) { dup = true; break; }
+      if (dup) continue;
+      const p = pieces[i];
+      for (let r = 0; r + p.height <= SIZE; r++) {
+        for (let c = 0; c + p.width <= SIZE; c++) {
+          if (!fits(b, p, r, c)) continue;
+          placedAny = true;
+          const next = copy(b);
+          place(next, p, r, c, true);
+          const cleared = clearFullLines(next);
+          const step = p.cells.length + cleared * 10 + (cleared > 1 ? (cleared - 1) * 20 : 0);
+          used[i] = true;
+          current.push({ piece: p, row: r, col: c, linesCleared: cleared });
+          search(next, current, score + step, lines + cleared);
+          current.pop();
+          used[i] = false;
+        }
+      }
+    }
+    if (!placedAny) {
+      const better = current.length !== best.placements.length
+        ? current.length > best.placements.length
+        : score > best.score;
+      if (better) { best.placements = current.slice(); best.score = score; best.totalLinesCleared = lines; }
+    }
+  }
+  search(copy(board), [], 0, 0);
+  return best.placements.length > 0 ? best : null;
+}
+
+// ----------------------------------------------------------------- UI
+const PLACEMENT_COLORS = ['#3b82f5', '#f59e0a', '#a854f7'];
+const boardEl = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const board = Array.from({ length: SIZE }, () => new Array(SIZE).fill(false));
+const hand = [];
+const cells = [];
+
+for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) {
+  const el = document.createElement('div');
+  el.className = 'cell';
+  el.dataset.r = r; el.dataset.c = c;
+  boardEl.appendChild(el);
+  cells.push(el);
+}
+
+function setCell(r, c, filled) {
+  board[r][c] = filled;
+  cells[r * SIZE + c].className = 'cell' + (filled ? ' filled' : '');
+}
+function clearPreviews() { cells.forEach(el => el.classList.remove('p0', 'p1', 'p2')); }
+
+// Unified mouse + touch painting via Pointer Events.
+let dragging = false, paintMode = true;
+function cellAt(x, y) {
+  const el = document.elementFromPoint(x, y);
+  return el && el.classList.contains('cell') ? el : null;
+}
+function paint(el) {
+  if (!el) return;
+  clearPreviews();
+  setCell(+el.dataset.r, +el.dataset.c, paintMode);
+}
+boardEl.addEventListener('pointerdown', e => {
+  const el = cellAt(e.clientX, e.clientY);
+  if (!el) return;
+  e.preventDefault();
+  dragging = true;
+  paintMode = !board[+el.dataset.r][+el.dataset.c];
+  paint(el);
+});
+window.addEventListener('pointermove', e => { if (dragging) paint(cellAt(e.clientX, e.clientY)); });
+window.addEventListener('pointerup', () => dragging = false);
+window.addEventListener('pointercancel', () => dragging = false);
+
+// Piece mini-renderer
+function drawMini(piece, areaPx, color) {
+  const span = Math.max(piece.width, piece.height, 3);
+  const unit = Math.floor(areaPx / span);
+  const mini = document.createElement('div');
+  mini.className = 'mini';
+  mini.style.gridTemplateColumns = `repeat(${piece.width}, ${unit}px)`;
+  mini.style.gridTemplateRows = `repeat(${piece.height}, ${unit}px)`;
+  for (let r = 0; r < piece.height; r++) for (let c = 0; c < piece.width; c++) {
+    const i = document.createElement('i');
+    if (piece.cells.some(p => p.x === c && p.y === r)) {
+      i.style.background = color;
+      i.style.width = i.style.height = (unit - 2) + 'px';
+      i.style.margin = '1px';
+    }
+    mini.appendChild(i);
+  }
+  return mini;
+}
+
+// Palette
+const palette = document.getElementById('palette');
+for (const piece of PIECES) {
+  const btn = document.createElement('button');
+  btn.className = 'piece';
+  btn.type = 'button';
+  btn.title = piece.name;
+  btn.appendChild(drawMini(piece, 40, '#8cbfff'));
+  btn.addEventListener('click', () => { if (hand.length < 3) { hand.push(piece); refreshSlots(); status(''); } });
+  palette.appendChild(btn);
+}
+
+// Hand slots
+const slotsEl = document.getElementById('slots');
+const slots = [];
+for (let i = 0; i < 3; i++) {
+  const s = document.createElement('div');
+  s.className = 'slot';
+  s.addEventListener('click', () => { if (i < hand.length) { hand.splice(i, 1); refreshSlots(); } });
+  slotsEl.appendChild(s);
+  slots.push(s);
+}
+function refreshSlots() {
+  slots.forEach((s, i) => {
+    s.innerHTML = '';
+    if (i < hand.length) {
+      s.classList.add('used');
+      s.style.background = `color-mix(in srgb, ${PLACEMENT_COLORS[i]} 22%, #2b3d61)`;
+      s.style.borderColor = PLACEMENT_COLORS[i];
+      s.appendChild(drawMini(hand[i], 62, PLACEMENT_COLORS[i]));
+    } else {
+      s.classList.remove('used');
+      s.style.background = 'rgba(255,255,255,.05)';
+      s.style.borderColor = 'rgba(255,255,255,.12)';
+    }
+  });
+}
+refreshSlots();
+
+const status = t => statusEl.textContent = t || 'Paint the blocked cells, then pick up to 3 pieces.';
+
+// Actions
+document.getElementById('solve').addEventListener('click', () => {
+  clearPreviews();
+  if (!hand.length) { status('Pick up to 3 pieces first.'); return; }
+  const s = solve(board, hand);
+  if (!s) { status('No valid placement found for these pieces.'); return; }
+  s.placements.forEach((p, i) => {
+    for (const cell of p.piece.cells)
+      cells[(p.row + cell.y) * SIZE + (p.col + cell.x)].classList.add('p' + (i % 3));
+  });
+  const L = s.totalLinesCleared;
+  status(`Placed ${s.placements.length}/${hand.length} pieces • ${L} line${L === 1 ? '' : 's'} cleared • score ${s.score}`);
+});
+document.getElementById('clear').addEventListener('click', () => { clearPreviews(); status('Solution cleared.'); });
+document.getElementById('reset').addEventListener('click', () => {
+  clearPreviews();
+  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) setCell(r, c, false);
+  hand.length = 0; refreshSlots(); status('Board reset.');
+});
+
+// exposed for automated tests
+window.__app = { setCell, board, hand, PIECES, solve };
+</script>
+</body>
+</html>
