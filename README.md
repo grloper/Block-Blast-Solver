@@ -92,13 +92,14 @@ The full search for 3 pieces finishes in well under a second.
 
 ### Enabling the live web app
 
-The browser app deploys automatically via GitHub Actions. One-time setup:
+The browser app deploys automatically via GitHub Actions. The workflow enables
+GitHub Pages itself (`configure-pages` runs with `enablement: true`), so every
+push to `main` that touches `WebApp/` publishes
+`https://grloper.github.io/Block-Blast-Solver/` with no manual setup.
 
-1. Go to **Settings → Pages**.
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-
-Every push to `main` that touches `WebApp/` then redeploys
-`https://grloper.github.io/Block-Blast-Solver/`.
+If your account/org policy blocks automatic enablement, turn it on once by
+hand: **Settings → Pages → Build and deployment → Source: GitHub Actions**,
+then re-run the workflow.
 
 ### Enabling native release builds
 
