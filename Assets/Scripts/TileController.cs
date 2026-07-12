@@ -1,41 +1,44 @@
 using UnityEngine;
 
+/// <summary>
+/// A single cell of the 8x8 board. Click/drag to mark cells as blocked
+/// (mirroring your in-game board). The solver paints placement previews on top.
+/// </summary>
 public class TileController : MonoBehaviour
 {
-    private SpriteRenderer spriteRenderer;
     public Color tileBaseColor = Color.white;
-    public Color tileHighlightColor = Color.green;
-    public Color filledColor = Color.black;
+    public Color filledColor = new Color(0.29f, 0.72f, 0.37f); // blocked cell (green)
 
-    private bool isGlowing = false; // Tracks if the tile is glowing/active
-    private static bool isPaintingMode; // Tracks if the user is painting (true) or erasing (false)
-    private static bool hasStartedDrawing = false; // Tracks if the user has started drawing
+    private SpriteRenderer spriteRenderer;
+    private bool isFilled;
+    private bool hasPreview;
+    private Color previewColor;
 
-    public bool IsFilled => spriteRenderer.color == filledColor;
+    private static bool isPaintingMode;      // true = painting, false = erasing
+    private static bool hasStartedDrawing;   // a drag gesture is in progress
 
-    void Start()
+    public bool IsFilled => isFilled;
+
+    void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        spriteRenderer.color = tileBaseColor;
+        Refresh();
     }
 
     void OnMouseDown()
     {
-        // Determine the initial action (painting or erasing)
         if (!hasStartedDrawing)
         {
-            isPaintingMode = spriteRenderer.color == tileBaseColor;
+            // First tile of the gesture decides whether we paint or erase.
+            isPaintingMode = !isFilled;
             hasStartedDrawing = true;
         }
-
-        // Perform the action based on the initial action
         HandleTileInteraction();
     }
 
     void OnMouseEnter()
     {
-        // Only apply the interaction if the left mouse button is held
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0) && hasStartedDrawing)
         {
             HandleTileInteraction();
         }
@@ -43,33 +46,46 @@ public class TileController : MonoBehaviour
 
     void OnMouseUp()
     {
-        // Reset the drawing state when the mouse button is released
         hasStartedDrawing = false;
     }
 
     private void HandleTileInteraction()
     {
-        if (isPaintingMode)
-        {
-            if (spriteRenderer.color == tileBaseColor)
-            {
-                isGlowing = true;
-                spriteRenderer.color = tileHighlightColor;
-            }
-        }
-        else
-        {
-            if (spriteRenderer.color == tileHighlightColor)
-            {
-                isGlowing = false;
-                spriteRenderer.color = tileBaseColor;
-            }
-        }
+        SetFilled(isPaintingMode);
     }
 
+    public void SetFilled(bool filled)
+    {
+        isFilled = filled;
+        hasPreview = false; // editing a cell invalidates any solver preview on it
+        Refresh();
+    }
+
+    public void SetPreview(Color color)
+    {
+        hasPreview = true;
+        previewColor = color;
+        Refresh();
+    }
+
+    public void ClearPreview()
+    {
+        hasPreview = false;
+        Refresh();
+    }
+
+    /// <summary>Empties the cell and removes any preview.</summary>
     public void RevertTile()
     {
-        isGlowing = false;
-        spriteRenderer.color = tileBaseColor;
+        isFilled = false;
+        hasPreview = false;
+        Refresh();
+    }
+
+    private void Refresh()
+    {
+        if (spriteRenderer == null) return;
+        if (hasPreview) spriteRenderer.color = previewColor;
+        else spriteRenderer.color = isFilled ? filledColor : tileBaseColor;
     }
 }
