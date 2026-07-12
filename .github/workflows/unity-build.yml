@@ -1,0 +1,78 @@
+name: Build Unity (Desktop + WebGL)
+
+# Builds native players for Windows, macOS, Linux and WebGL using GameCI and
+# attaches the zipped builds to a GitHub Release, so users can download and run
+# the real Unity app in a couple of clicks.
+#
+# One-time setup (required, free): this needs a Unity license.
+#   1. Follow https://game.ci/docs/github/activation to obtain a license file.
+#   2. Add these repository secrets (Settings -> Secrets and variables -> Actions):
+#        UNITY_LICENSE   - contents of your .ulf activation file
+#        UNITY_EMAIL     - your Unity account email
+#        UNITY_PASSWORD  - your Unity account password
+#
+# Trigger a release build by pushing a version tag, e.g.:
+#   git tag v1.0.0 && git push origin v1.0.0
+# or run it manually from the Actions tab (artifacts only, no Release).
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # needed to publish the Release
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneWindows64   # Windows .exe
+          - StandaloneOSX         # macOS .app
+          - StandaloneLinux64     # Linux
+          - WebGL                 # browser build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-${{ matrix.targetPlatform }}-
+            Library-
+
+      - name: Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+          buildName: BlockBlastSolver
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BlockBlastSolver-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+
+      - name: Zip build
+        run: |
+          cd build
+          zip -r "../BlockBlastSolver-${{ matrix.targetPlatform }}.zip" "${{ matrix.targetPlatform }}"
+
+      - name: Attach to Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: BlockBlastSolver-${{ matrix.targetPlatform }}.zip
+          fail_on_unmatched_files: true
