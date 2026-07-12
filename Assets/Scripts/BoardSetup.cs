@@ -12,17 +12,17 @@ public class BoardSetup : MonoBehaviour
         GenerateBoard();
     }
 
-    // Generate the game board
+    // Generate the game board (row 0 is the top row)
     void GenerateBoard()
     {
         for (int row = 0; row < rows; row++)
         {
             for (int col = 0; col < cols; col++)
             {
-                Vector3 position = new Vector3(col * cellSize, row * -cellSize, 0);
+                Vector3 position = transform.position + new Vector3(col * cellSize, row * -cellSize, 0);
+                position.z = 0; // keep tiles in front of the camera regardless of parent depth
                 Instantiate(cellPrefab, position, Quaternion.identity, transform);
             }
         }
     }
-
 }
