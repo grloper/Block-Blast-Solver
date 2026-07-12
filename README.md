@@ -17,7 +17,7 @@ Everything runs locally in your browser; nothing is uploaded.
 
 | Desktop | Mobile |
 | :---: | :---: |
-| ![Web app on desktop](docs/webapp.png) | <img src="docs/webapp-mobile.png" width="240" alt="Web app on mobile"> |
+| ![Web app on desktop](docs/demo.gif) | <img src="docs/webapp-mobile.png" width="170" alt="Web app on mobile"> |
 
 > The live link goes live once this branch is merged to `main` and GitHub Pages
 > is enabled (see [Enabling the live web app](#enabling-the-live-web-app)).
