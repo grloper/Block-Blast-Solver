@@ -77,6 +77,16 @@ public static class PieceLibrary
             Make("L 180", "XXX", "..X", "..X"),
             Make("L 270", "..X", "..X", "XXX"),
 
+            // Small Ls / Js (4 cells: a row of 3 with one tab)
+            Make("L4 up-left", "XXX", "X.."),
+            Make("L4 up-right", "XXX", "..X"),
+            Make("L4 down-left", "X..", "XXX"),
+            Make("L4 down-right", "..X", "XXX"),
+            Make("L4 vert-1", "XX", "X.", "X."),
+            Make("L4 vert-2", "XX", ".X", ".X"),
+            Make("L4 vert-3", "X.", "X.", "XX"),
+            Make("L4 vert-4", ".X", ".X", "XX"),
+
             // Ts
             Make("T up", ".X.", "XXX"),
             Make("T down", "XXX", ".X."),

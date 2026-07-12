@@ -73,7 +73,7 @@ The full search for 3 pieces finishes in well under a second.
 | `Assets/Scripts/BoardSetup.cs` | Spawns the 8x8 tile grid |
 | `Assets/Scripts/TileController.cs` | Click/drag painting and preview colors for a single tile |
 | `Assets/Scripts/BoardManager.cs` | Board state access, previews, reset |
-| `Assets/Scripts/PieceLibrary.cs` | The 29 standard Block Blast piece shapes |
+| `Assets/Scripts/PieceLibrary.cs` | The 37 standard Block Blast piece shapes |
 | `Assets/Scripts/BlockBlastSolver.cs` | The placement search (pure C#, engine-independent) |
 | `Assets/Scripts/SolverController.cs` | Builds the whole solver UI at runtime and wires everything together |
 | `WebApp/index.html` | Self-contained browser version (same solver, mobile/touch ready) |
