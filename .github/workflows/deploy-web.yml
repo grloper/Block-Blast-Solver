@@ -1,17 +1,16 @@
 name: Deploy Web App to GitHub Pages
 
-# Publishes the in-browser solver (WebApp/) to GitHub Pages so anyone can play
-# it on any device from a single link. No secrets or Unity license required.
+# OPTIONAL / MANUAL. This project currently serves GitHub Pages directly from
+# the `main` branch (Settings -> Pages -> Source: "Deploy from a branch"), which
+# auto-rebuilds on every push - so this workflow is not needed for that setup.
 #
-# One-time setup: repo Settings -> Pages -> Build and deployment -> Source:
-# "GitHub Actions". After that this runs automatically on every push to main.
+# It is kept for anyone who prefers the "GitHub Actions" Pages source instead:
+# switch Settings -> Pages -> Source to "GitHub Actions", then run this workflow
+# (Actions tab -> "Deploy Web App to GitHub Pages" -> Run workflow). Leaving it
+# on `workflow_dispatch` only means it never auto-fails while Pages is in
+# branch mode.
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'WebApp/**'
-      - '.github/workflows/deploy-web.yml'
   workflow_dispatch:
 
 permissions:
