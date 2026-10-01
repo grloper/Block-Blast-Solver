@@ -68,6 +68,7 @@
     transition: background .06s linear;
   }
   .cell.filled { background: var(--filled); }
+  .cell:focus-visible { outline: 3px solid #f59e0a; outline-offset: 2px; }
   .cell.p0 { background: var(--p1); }
   .cell.p1 { background: var(--p2); }
   .cell.p2 { background: var(--p3); }
@@ -161,7 +162,7 @@
 
   <footer>
     Open source &middot; <a href="https://github.com/grloper/Block-Blast-Solver">github.com/grloper/Block-Blast-Solver</a><br>
-    Same solver as the Unity project, running entirely in your browser. Nothing is uploaded.
+    Browser implementation; native Unity parity has not been verified. This page computes locally.
   </footer>
 
 <script>
@@ -277,6 +278,9 @@ function solve(board, pieces) {
 const PLACEMENT_COLORS = ['#3b82f5', '#f59e0a', '#a854f7'];
 const boardEl = document.getElementById('board');
 const statusEl = document.getElementById('status');
+statusEl.setAttribute('aria-live', 'polite');
+boardEl.setAttribute('role', 'grid');
+boardEl.setAttribute('aria-label', '8 by 8 game board. Arrow keys move; Space or Enter toggles a blocked cell.');
 const board = Array.from({ length: SIZE }, () => new Array(SIZE).fill(false));
 const hand = [];
 const cells = [];
@@ -285,6 +289,10 @@ for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) {
   const el = document.createElement('div');
   el.className = 'cell';
   el.dataset.r = r; el.dataset.c = c;
+  el.setAttribute('role', 'gridcell');
+  el.setAttribute('aria-label', `Row ${r + 1}, column ${c + 1}: empty`);
+  el.setAttribute('aria-selected', 'false');
+  el.tabIndex = r === 0 && c === 0 ? 0 : -1;
   boardEl.appendChild(el);
   cells.push(el);
 }
@@ -292,8 +300,33 @@ for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) {
 function setCell(r, c, filled) {
   board[r][c] = filled;
   cells[r * SIZE + c].className = 'cell' + (filled ? ' filled' : '');
+  cells[r * SIZE + c].setAttribute('aria-selected', String(filled));
+  cells[r * SIZE + c].setAttribute('aria-label', `Row ${r + 1}, column ${c + 1}: ${filled ? 'blocked' : 'empty'}`);
 }
 function clearPreviews() { cells.forEach(el => el.classList.remove('p0', 'p1', 'p2')); }
+
+boardEl.addEventListener('keydown', e => {
+  const el = e.target.closest('.cell');
+  if (!el) return;
+  const r = +el.dataset.r, c = +el.dataset.c;
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    clearPreviews();
+    setCell(r, c, !board[r][c]);
+    status(`Row ${r + 1}, column ${c + 1}: ${board[r][c] ? 'blocked' : 'empty'}`);
+    return;
+  }
+  const steps = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+  const step = steps[e.key];
+  if (!step) return;
+  e.preventDefault();
+  const nextR = Math.max(0, Math.min(SIZE - 1, r + step[0]));
+  const nextC = Math.max(0, Math.min(SIZE - 1, c + step[1]));
+  cells.forEach(cell => { cell.tabIndex = -1; });
+  const next = cells[nextR * SIZE + nextC];
+  next.tabIndex = 0;
+  next.focus();
+});
 
 // Unified mouse + touch painting via Pointer Events.
 let dragging = false, paintMode = true;
@@ -309,9 +342,12 @@ function paint(el) {
 boardEl.addEventListener('pointerdown', e => {
   const el = cellAt(e.clientX, e.clientY);
   if (!el) return;
-  e.preventDefault();
-  dragging = true;
-  paintMode = !board[+el.dataset.r][+el.dataset.c];
+    e.preventDefault();
+    dragging = true;
+    cells.forEach(cell => { cell.tabIndex = -1; });
+    el.tabIndex = 0;
+    el.focus();
+    paintMode = !board[+el.dataset.r][+el.dataset.c];
   paint(el);
 });
 window.addEventListener('pointermove', e => { if (dragging) paint(cellAt(e.clientX, e.clientY)); });
