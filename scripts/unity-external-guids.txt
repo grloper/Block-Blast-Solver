@@ -1,0 +1,54 @@
+# Script GUIDs referenced from tracked assets that legitimately live in Unity packages (TextMesh Pro, UGUI, URP, ...)
+# and not under Assets/. They are NOT defined in this repo; they are ASSUMED to be package scripts (origin not verified offline).
+# Snapshot taken when the gate was introduced. Every addition is reviewed by the owner (CODEOWNERS); do not add a GUID to silence a missing-script error.
+01614664b831546d2ae94a42149d80ac  # Assets/Scenes/SampleScene.unity
+058cba836c1846c3aa1c5fd2e28aea77  # Assets/TextMesh Pro/Examples & Extras/Scenes/10 - Bullets & Numbered List Example.unity
+06437c1ff663d574d9447842ba0a72e4  # Assets/DefaultVolumeProfile.asset
+073797afb82c5a1438f328866b10b3f0  # Assets/Scenes/SampleScene.unity
+0b2db86121404754db890f4c8dfe81b2  # Assets/DefaultVolumeProfile.asset
+0cd44c1031e13a943bb63640046fad76  # Assets/Scenes/SampleScene.unity
+0d7593b3a9277ac4696b20006c21dde2  # Assets/TextMesh Pro/Examples & Extras/Scenes/28 - HDRP Shader Example/Sky and Fog Volume Profile.asset
+11145981673336645838492a2d98e247  # Assets/Settings/Renderer2D.asset
+172515602e62fb746b5d573b38a5fe58  # Assets/TextMesh Pro/Examples & Extras/Scenes/28 - HDRP Shader Example.unity
+221518ef91623a7438a71fef23660601  # Assets/DefaultVolumeProfile.asset
+23c1ce4fb46143f46bc5cb5224c934f6  # Assets/TextMesh Pro/Examples & Extras/Scenes/28 - HDRP Shader Example.unity
+2705215ac5b84b70bacc50632be6e391  # Assets/TextMesh Pro/Resources/TMP Settings.asset
+29fa0085f50d5e54f8144f766051a691  # Assets/DefaultVolumeProfile.asset
+2da0c512f12947e489f739169773d7ca  # Assets/TextMesh Pro/Examples & Extras/Scenes/20 - Input Field with Scrollbar.unity
+2ec995e51a6e251468d2a3fd8a686257  # Assets/UniversalRenderPipelineGlobalSettings.asset
+3eb4b772797da9440885e8bd939e9560  # Assets/DefaultVolumeProfile.asset
+474bcb49853aa07438625e644c072ee6  # Assets/TextMesh Pro/Examples & Extras/Scenes/24 - Surface Shader Example URP.unity
+4e29b1a8efbd4b44bb3f3716e73f07ff  # Assets/Scenes/SampleScene.unity
+4f231c4fb786f3946a6b90b886c48677  # Assets/TextMesh Pro/Examples & Extras/Scenes/12a - Text Interactions.unity
+5485954d14dfb9a4c8ead8edb0ded5b1  # Assets/DefaultVolumeProfile.asset
+54d21f6ece3b46479f0c328f8c6007e0  # Assets/TextMesh Pro/Examples & Extras/Resources/Color Gradient Presets/Blue to Purple - Vertical.asset
+558a8e2b6826cf840aae193990ba9f2e  # Assets/DefaultVolumeProfile.asset
+66f335fb1ffd8684294ad653bf1c7564  # Assets/DefaultVolumeProfile.asset
+6bd486065ce11414fa40e631affc4900  # Assets/DefaultVolumeProfile.asset
+70afe9e12c7a7ed47911bb608a23a8ff  # Assets/DefaultVolumeProfile.asset
+71c1514a6bd24e1e882cebbe1904ce04  # Assets/TextMesh Pro/Examples & Extras/Resources/Fonts & Materials/Anton SDF.asset
+76c392e42b5098c458856cdf6ecaaaa1  # Assets/Scenes/SampleScene.unity
+7a68c43fe1f2a47cfa234b5eeaa98012  # Assets/TextMesh Pro/Examples & Extras/Scenes/28 - HDRP Shader Example.unity
+7b743370ac3e4ec2a1668f5455a8ef8a  # Assets/TextMesh Pro/Examples & Extras/Scenes/26 - Dropdown Placeholder Example.unity
+81180773991d8724ab7f2d216912b564  # Assets/DefaultVolumeProfile.asset
+84a92b25f83d49b9bc132d206b370281  # Assets/TextMesh Pro/Examples & Extras/Resources/Sprite Assets/Default Sprite Asset.asset
+899c54efeace73346a0a16faa3afe726  # Assets/DefaultVolumeProfile.asset
+9541d86e2fd84c1d9990edf0852d74ab  # Assets/TextMesh Pro/Examples & Extras/Prefabs/TextMeshPro - Prefab 1.prefab
+97c23e3b12dc18c42a140437e53d3951  # Assets/DefaultVolumeProfile.asset
+a79441f348de89743a2939f4d699eac1  # Assets/Scenes/SampleScene.unity
+ab2114bdc8544297b417dfefe9f1e410  # Assets/TextMesh Pro/Resources/Style Sheets/Default Style Sheet.asset
+bf2edee5c58d82540a51f03df9d42094  # Assets/Settings/UniversalRP.asset
+c01700fd266d6914ababb731e09af2eb  # Assets/DefaultVolumeProfile.asset
+c5e1dc532bcb41949b58bc4f2abfbb7e  # Assets/DefaultVolumeProfile.asset
+ccf1aba9553839d41ae37dd52e9ebcce  # Assets/DefaultVolumeProfile.asset
+cdfbdbb87d3286943a057f7791b43141  # Assets/DefaultVolumeProfile.asset
+d0353a89b1f911e48b9e16bdc9f2e058  # Assets/TextMesh Pro/Examples & Extras/Materials/Crate - URP.mat
+d7fd9488000d3734a9e00ee676215985  # Assets/DefaultVolumeProfile.asset
+da692e001514ec24dbc4cca1949ff7e8  # Assets/TextMesh Pro/Examples & Extras/Resources/Fonts & Materials/Roboto-Bold SDF - HDRP Unlit.mat
+dc42784cf147c0c48a680349fa168899  # Assets/Scenes/SampleScene.unity
+e021b4c809a781e468c2988c016ebbea  # Assets/DefaultVolumeProfile.asset
+f4688fdb7df04437aeb418b961361dc5  # Assets/Scenes/SampleScene.unity
+f5f67c52d1564df4a8936ccd202a3bd8  # Assets/TextMesh Pro/Examples & Extras/Prefabs/Text Popup.prefab
+f70555f144d8491a825f0804e09c671c  # Assets/TextMesh Pro/Examples & Extras/Scenes/26 - Dropdown Placeholder Example.unity
+fb60a22f311433c4c962b888d1393f88  # Assets/DefaultVolumeProfile.asset
+fe87c0e1cc204ed48ad3b37840f39efc  # Assets/Scenes/SampleScene.unity
